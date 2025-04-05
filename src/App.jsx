@@ -55,7 +55,7 @@ function launchGoldenConfetti() {
     }, 250);
 }
 
-function App() {
+function App({ lang = 'kz' }) {
     const { t } = useTranslation();
 
     const [firstName, setFirstName] = useState('');
@@ -64,8 +64,13 @@ function App() {
     const [isLoading, setIsLoading] = useState(false);
     const section2Ref = useRef(null);
     const audioRef = useRef(null);
-    const [musicStarted, setMusicStarted] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
+
+    const { i18n } = useTranslation();
+
+    useEffect(() => {
+        i18n.changeLanguage(lang);
+    }, [i18n, lang]);
 
     const toggleMusic = () => {
         if (audioRef.current) {
