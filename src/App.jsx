@@ -1,7 +1,17 @@
 import './App.css'
 import gis2 from './assets/2gis.jpg'
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import music from './assets/wedding.mp3'
+
 import {useEffect, useRef, useState} from "react";
 import confetti from 'canvas-confetti';
+
 const scriptURL = "https://script.google.com/macros/s/AKfycbxp21OeYHP5Um9ATBPdzz9hsdbiN3NrtmTfDuHm-QHFkUxBeQMOkToqTGw79Vya7ovz4A/exec";
 
 function launchGoldenConfetti() {
@@ -44,9 +54,26 @@ function App() {
     const [response, setResponse] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const section2Ref = useRef(null);
+    const audioRef = useRef(null);
+    const [musicStarted, setMusicStarted] = useState(false);
+
+    const playMusicOnce = () => {
+        if (audioRef.current && !musicStarted) {
+            audioRef.current.play().catch(err => {
+                console.warn("Music autoplay failed:", err);
+            });
+            setMusicStarted(true);
+        }
+    };
 
     useEffect(() => {
         launchGoldenConfetti();
+
+        window.addEventListener('click', playMusicOnce);
+
+        return () => {
+            window.removeEventListener('click', playMusicOnce);
+        };
     }, []);
 
     const handleSubmit = async (e) => {
@@ -58,7 +85,7 @@ function App() {
         }
 
         const fullName = `${firstName} ${lastName}`;
-        const data = { name: fullName, response };
+        const data = {name: fullName, response};
 
         setIsLoading(true);
 
@@ -88,8 +115,12 @@ function App() {
 
     return (
         <div className="App mx-auto">
+            <audio ref={audioRef} src={music} loop/>
             <div className="App-content flex flex-col">
                 <div className="section1 mx-auto flex flex-col justify-end h-[100vh] overflow-hidden ">
+                    {/*<Button onClick={playMusicOnce} variant="outlined" color="secondary" startIcon={<MusicNoteIcon />}>*/}
+                    {/*    Музыканы қосу*/}
+                    {/*</Button>*/}
                     <div className="z-10">
                         <div className="py-10">
                             <h2 className="text-main text-[42px] text-center"></h2>
@@ -108,7 +139,7 @@ function App() {
                             үйлену тойына шақырамыз! <br/></h1>
                     </div>
                     <div className="flex flex-col items-center">
-                    <div className="z-10">
+                        <div className="z-10">
                             <h1 className="text-secondary">Той салтанаты</h1>
                             <h3 className="text-[28px] leading-[28px]">
                                 <span>15</span> маусым <span>2025</span><br/> сағат <span>18:00</span> <br/> (жексенбі)
@@ -137,71 +168,50 @@ function App() {
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center text-center text-main section4 mx-auto py-8 z-10">
+                <div
+                    className="bg-white flex flex-col space-y-4 items-center text-center text-main section4 mx-auto py-8 z-10">
                     <p className="text-[20px] text-center leading-[28px]">Тойға келесіз бе? <br/></p>
-                    <form onSubmit={handleSubmit} className="z-10">
-                        <div className="mb-4">
-                            <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <input
-                                    type="text"
-                                    value={firstName}
-                                    onChange={(e) => setFirstName(e.target.value)}
-                                    className="w-full p-3 border rounded-lg bg-white outline-none focus:ring-2 focus:ring-secondary shadow-sm transition-all"
-                                    placeholder="Атыңыз"
-                                />
-                                <input
-                                    type="text"
-                                    value={lastName}
-                                    onChange={(e) => setLastName(e.target.value)}
-                                    className="w-full p-3 border rounded-lg bg-white outline-none focus:ring-2 focus:ring-secondary shadow-sm transition-all"
-                                    placeholder="Тегіңіз"
-                                />
-                            </div>
-
+                    <form onSubmit={handleSubmit} className="z-10 flex flex-col space-y-8">
+                        <div className="flex flex-col space-y-4">
+                            <TextField
+                                label="Атыңыз"
+                                variant="outlined"
+                                fullWidth
+                                value={firstName}
+                                onChange={(e) => setFirstName(e.target.value)}
+                            />
+                            <TextField
+                                label="Тегіңіз"
+                                variant="outlined"
+                                fullWidth
+                                value={lastName}
+                                onChange={(e) => setLastName(e.target.value)}
+                            />
                         </div>
 
-                        <div className="mb-4 z-10">
-                            <div>
-                                <label className="flex items-center mb-2">
-                                    <input
-                                        type="radio"
-                                        value="ИӘ, ӘРИНЕ, КЕЛЕМІН"
-                                        checked={response === "ИӘ, ӘРИНЕ, КЕЛЕМІН"}
-                                        onChange={(e) => setResponse(e.target.value)}
-                                        className="mr-2"
-                                    />
-                                    ИӘ, ӘРИНЕ, КЕЛЕМІН
-                                </label>
-                                <label className="flex items-center mb-2">
-                                    <input
-                                        type="radio"
-                                        value="ЖҰБАЙЫММЕН КЕЛЕМІН"
-                                        checked={response === "ЖҰБАЙЫММЕН КЕЛЕМІН"}
-                                        onChange={(e) => setResponse(e.target.value)}
-                                        className="mr-2"
-                                    />
-                                    ЖҰБАЙЫММЕН КЕЛЕМІН
-                                </label>
-                                <label className="flex items-center">
-                                    <input
-                                        type="radio"
-                                        value="ӨКІНІШКЕ ОРАЙ, КЕЛЕ АЛМАЙМЫН"
-                                        checked={response === "ӨКІНІШКЕ ОРАЙ, КЕЛЕ АЛМАЙМЫН"}
-                                        onChange={(e) => setResponse(e.target.value)}
-                                        className="mr-2"
-                                    />
-                                    ӨКІНІШКЕ ОРАЙ, КЕЛЕ АЛМАЙМЫН
-                                </label>
-                            </div>
-                        </div>
+                        <FormControl component="fieldset">
+                            <RadioGroup
+                                value={response}
+                                onChange={(e) => setResponse(e.target.value)}
+                            >
+                                <FormControlLabel value="келемін" control={<Radio/>} label="Келемін"/>
+                                <FormControlLabel value="жұбайыммен келемін" control={<Radio/>}
+                                                  label="Жұбайыммен келемін"/>
+                                <FormControlLabel value="өкінішке орай, келе алмаймын" control={<Radio/>}
+                                                  label="Өкінішке орай, келе алмаймын"/>
+                            </RadioGroup>
+                        </FormControl>
 
-                        <button
-                            disabled={isLoading}
+                        <Button
+                            variant="contained"
+                            className="bg-secondary"
+                            fullWidth
                             type="submit"
-                            className="w-full bg-secondary text-white p-3 rounded hover:opacity-80"
+                            disabled={isLoading}
                         >
-                            {isLoading ? "Жүктелуде..." : "Жауапты жіберу"}
-                        </button>
+                            {isLoading ? 'Жүктелуде...' : 'Жауапты жіберу'}
+                        </Button>
+
                     </form>
                 </div>
             </div>
