@@ -79,3 +79,7 @@ span {
 .arrow:nth-child(3) {
     animation-delay: 0.4s;
 }
+
+h1 {
+    font-size: 2em;
+}
