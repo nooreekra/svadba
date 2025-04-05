@@ -13,6 +13,9 @@ import FormControl from '@mui/material/FormControl';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import confetti from 'canvas-confetti';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const scriptURL = 'https://script.google.com/macros/s/AKfycbxp21OeYHP5Um9ATBPdzz9hsdbiN3NrtmTfDuHm-QHFkUxBeQMOkToqTGw79Vya7ovz4A/exec';
 
@@ -79,7 +82,7 @@ function App() {
         e.preventDefault();
 
         if (!firstName.trim() || !lastName.trim()) {
-            alert(t('form_required'));
+            toast.warn(t('form_required'));
             return;
         }
 
@@ -100,13 +103,13 @@ function App() {
 
             const result = await response.json();
             console.log('Success:', result);
-            alert(t('form_success'));
+            toast.success(t('form_success'));
             setFirstName('');
             setLastName('');
             setResponse('келемін');
         } catch (error) {
             console.error('Error:', error);
-            alert(t('form_error'));
+            toast.error(t('form_error'));
         } finally {
             setIsLoading(false);
         }
@@ -196,6 +199,7 @@ function App() {
                     </form>
                 </div>
             </div>
+            <ToastContainer position="top-center" autoClose={3000} />
         </div>
     );
 }
