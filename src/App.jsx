@@ -10,6 +10,11 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import MusicOffIcon from '@mui/icons-material/MusicOff';
+
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import confetti from 'canvas-confetti';
@@ -60,22 +65,23 @@ function App() {
     const section2Ref = useRef(null);
     const audioRef = useRef(null);
     const [musicStarted, setMusicStarted] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
+
+    const toggleMusic = () => {
+        if (audioRef.current) {
+            if (isPlaying) {
+                audioRef.current.pause();
+            } else {
+                audioRef.current.play().catch(err => {
+                    console.warn('Музыка не запустилась:', err);
+                });
+            }
+            setIsPlaying(!isPlaying);
+        }
+    };
 
     useEffect(() => {
         launchGoldenConfetti();
-
-        const handleClick = () => {
-            if (audioRef.current && !musicStarted) {
-                audioRef.current.play().catch(err => {
-                    console.warn('Автозапуск аудио не сработал:', err);
-                });
-                setMusicStarted(true);
-                window.removeEventListener('scroll', handleClick);
-            }
-        };
-
-        window.addEventListener('click', handleClick);
-        return () => window.removeEventListener('click', handleClick);
     }, []);
 
     const handleSubmit = async e => {
@@ -115,25 +121,48 @@ function App() {
         }
     };
 
+    const scrollToSection = () => {
+        section2Ref.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
     return (
         <div className="App mx-auto">
             <audio ref={audioRef} src={music} loop />
             <div className="App-content flex flex-col">
-                <div className="section1 mx-auto flex flex-col justify-between h-[100vh] overflow-hidden">
+                <div className="relative section1 mx-auto flex flex-col justify-between h-[100vh] overflow-hidden">
+                    <div className="absolute top-4 right-4 z-50">
+                        <div className="relative flex items-center justify-center w-[60px] h-[60px]">
+                            {!isPlaying && <span className="pulse-ring"></span>}
+                            <Tooltip title={isPlaying ? "Музыканы тоқтату" : "Музыканы қосу"}>
+                                <IconButton onClick={toggleMusic} sx={{color: 'white', fontSize: 36}}>
+                                    {isPlaying ? <MusicOffIcon sx={{fontSize: 36}}/> :
+                                        <MusicNoteIcon sx={{fontSize: 36}}/>}
+                                </IconButton>
+                            </Tooltip>
+                        </div>
+                    </div>
                     <div className="z-10 mt-2 ml-14 flex justify-center">
                         <img src={letters} alt="letters" className="w-44 opacity-40"/>
                     </div>
                     <div className="z-10 py-10">
-                    <h1 className="text-secondary text-shadow-lg text-[3.5rem] text-center">{t('title')}</h1>
-                        <h2 className="text-secondary text-shadow-lg text-[2rem] text-center">{t('date')}</h2>
+                        <h1 className="text-white text-shadow-lg text-[3.5rem] text-center">{t('title')}</h1>
+                        <h2 className="text-white text-shadow-lg text-[2rem] text-center">{t('date')}</h2>
+                        <div className="z-10 down flex justify-center pb-4" onClick={scrollToSection}>
+                            <div className="arrow-container">
+                                <div className="arrow"></div>
+                                <div className="arrow"></div>
+                                <div className="arrow"></div>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
 
                 <div ref={section2Ref} className="flex flex-col space-y-14 mx-auto text-center text-main section2 py-8">
                     <div className="z-10">
                         <h1 className="text-secondary text-center">{t('invitation_title')}</h1>
                         <p className="text-[20px] text-center leading-[28px] text-white">
-                            {t('invitation_1')} <br/>
+                        {t('invitation_1')} <br/>
                             {t('invitation_2')} <br/>
                             {t('invitation_3')} <br/>
                         </p>
@@ -156,7 +185,6 @@ function App() {
                         <h1 className="text-secondary">{t('address_title')}</h1>
                         <p className="text-[20px] text-center leading-[28px] text-white">
                             {t('address_city')} <br/>
-                            {t('address_local')} <br/>
                             {t('address_street')} <br/>
                             {t('address_rest')}
                         </p>
